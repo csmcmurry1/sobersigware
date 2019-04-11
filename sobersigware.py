@@ -48,7 +48,7 @@ class Sobersigware:
         while sobersigs_index < 9:
             for bro in brothers:
                 chance = random.random()
-                if bro is not None and bro.eta_value < chance and sobersigs_index < 9 and bro.has_immunity is False:
+                if bro and bro.eta_value < chance and sobersigs_index < 9 and not bro.has_immunity:
                     sobersigs[sobersigs_index] = bro
                     sobersigs_index += 1
 
@@ -58,21 +58,24 @@ class Sobersigware:
         # initialize state
         volunteers = str(input("Any Volunteers?: ")).split(", ")  # must differentiate names by ,
         immunity = str(input("Phone Game Winners: ")).split(", ")  # must differentiate names by ,
-        sobersigs = numpy.empty(9, dtype=object)  # int(input("How many Sobersigs?: ")), dtype=object)
-        brothers = numpy.empty(40, dtype=object)  # int(input("How many Brothers?: ")), dtype=object)
+        sobersigs = numpy.empty(9, dtype=object)  # int(input("How many Sobersigs?: "))
+        brothers = numpy.empty(40, dtype=object)  # int(input("How many Brothers?: "))
         table = numpy.empty(3, dtype=object)
         # storage file of brothers and file information
         file = open("Brothers.txt", "r")
+
         # assignment indices
         brother_index = 0
         incrementation = 0
         sobersigs_index = 0
+
         for line in file:
             # storage of brother information
             brother_name = ""
             brother_num = ""
             table_position = False
             # reads information to create instance of Brother
+
             for letter in line:
                 if letter.isdigit():
                     brother_num = brother_num + letter
@@ -80,8 +83,10 @@ class Sobersigware:
                     brother_name = brother_name + letter
                 if letter == "!":
                     table_position = True
+
             # the instance is created
             pledge = Sobersigware.Brother(brother_name, str(brother_num[0]), brother_num[1], brother_num[2], brother_num[3])
+
             # for consul, pro consul, and risk manager
             if table_position:
                 table[incrementation] = pledge
@@ -94,22 +99,27 @@ class Sobersigware:
                 pledge.eta_value -= .10
             pledge.eta_value += int(pledge.num_volunteer) * 0.025  # add .025 for each volunteer
             # if someone volunteers
+
             for brother in volunteers:
                 if brother == pledge.name:
                     pledge.is_volunteer = True
                     sobersigs[sobersigs_index] = pledge
                     sobersigs_index += 1
+
             # records brothers who possess immunity
             for brother in immunity:
                 if pledge.name == brother:
                     pledge.has_immunity = True
+
             if not pledge.is_volunteer and not table_position:
                 brothers[brother_index] = pledge
                 brother_index += 1
+
         # randomize entry order and close outer loop
         random.shuffle(brothers)
         random.shuffle(table)
         file.close()
+
         Sobersigware.avoid_typing_errors(brother_index)
         Sobersigware.fight_chance(brothers, sobersigs, sobersigs_index)
 
@@ -133,3 +143,7 @@ class Sobersigware:
 
     def __init__(self):
         Sobersigware.main()
+
+
+if __name__ == '__main__':
+    Sobersigware()
